@@ -17,8 +17,12 @@ int main(){
 ```
 程序编写完成后，通过GCC工具来编译文件hello.c，执行的命令如下：
 ``` shell
-$gcc -v --save-temps hello.c -o hello
-***TODO_COMPILE_2_2***
+$ gcc  -v --save-temps hello.c -o hello
+gcc 版本 4.9.4 20160726 (Red Hat 4.9.4-14) (GCC)
+cc1 -E -quiet -v hello.c -o hello.i
+cc1 -fpreprocessed hello.i  -o hello.s
+as -v -EL-o hello.o hello.s
+collect2  -o hello  crt1.o crti.o crtbegin.o hello.o crtend.o crtn.o
 ```
 :::{tip}
 为了便于接下来的分析，在这里对输出的信息做了一些删减和整理。
@@ -35,7 +39,12 @@ gcc [options] file...
 
 从上面的输出信息可以清晰地看出，GCC编译过程中涉及3个工具：cc1、as和collect2。cc1是第01章提到的编译器，负责对高级语言源文件（hello.c等）进行预处理，产生第一个中间文件(hello.i)；然后cc1再对预处理文件进行翻译，生成汇编源文件(hello.s)。as是汇编器，负责对汇编源文件进行翻译处理，生成包含机器指令的目标文件(hello.o)。collect2是链接器，负责将多个目标文件(\*.o)组合生成最终可在特定指令架构计算机上运行的目标文件(hello)。图2-5直观描述了这一过程。
 
-***TODO_PIC_2_5***
+```{image} ../../img/pic_2_5.png
+:alt: GCC编译过程
+:class: bg-primary
+:scale: 50 %
+:align: center
+```
 
 下面将根据使用工具的不同，把GCC编译过程简单分为3个阶段进行更细致的介绍。
 

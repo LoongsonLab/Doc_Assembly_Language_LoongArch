@@ -11,12 +11,21 @@ int test(int a,int b){
 }
 ```
 当我们调用函数test时 ，故意给参数b传入0，那么就会收到“浮点数例外”。使用调试工具GDB（GNU Debugger ，Linux系统下的调试工具）在龙芯平台上调试这段代码时，可以获取如下信息：
-``` c
-***TODO_DEBUG_1_2_1_1
+``` shell
+Program received signal SIGFPE, Arithmetic exception.
+0x00000001200006ec in test ()
+(gdb) bt
+#0  0x00000001200006ec in test ()
+#1  0x0000000120000734 in main ()
 ```
 这里GDB已经列出了函数调用栈，即函数main调用了函数test，在执行函数test中地址为0x00000001200006ec 处的指令时，触发异常SIGFPE。那么0x00000001200006ec处的指令是什么呢？我们可以使用GDB进一步确认。
-``` c
-***TODO_DEBUG_1_2_1_2
+``` shell
+(gdb) x/5i $pc-12
+0x1200006e0 <test+40>: ld.w    $r12,$r22,-24(0xfe8)
+0x1200006e4 <test+44>: div.w   $r14,$r13,$r12
+0x1200006e8 <test+48>: bne     $r12,$r0,8(0x8) # 0x1200006f0 <test+56>
+=> 0x1200006ec <test+52>: break  0x7
+0x1200006f0 <test+56>:  move   $r12,$r14
 ```
 其中 => 标识了当前PC（Program Counter,PC用来存放当前欲执行指令的地址）位置，即当前程序停在的位置。上面的汇编指令div.w $r14,$r13,$r12为除法指令，实现用寄存器 $r13除以$r12，将结果写入$r14 。汇编指令bne $r12,$r0,8(0x8) #0x1200006f0 是条件跳转指令，判断被除数$r12是否等于0（寄存器$r0 为特殊寄存器，其值永远为0），如果不相等则跳转到地址0x1200006f0 处继续执行，否则就不跳转，执行接下来的汇编指令break 0x7。break 指令将无条件触发断点例外，其参数0x7对应SIGFPE。至此，我们就知道了当前程序异常是由除法指令中的被除数为0引起的，对应的C语言代码就是return a/b;，语句中的b为0。
 
