@@ -4,7 +4,18 @@
 
 浮点运算指令包括基本的单/双精度浮点数的加、减、乘、除、乘加、乘减、最大值、最小值、绝对值、取反、开方、倒数等功能运算。LoongArch支持的浮点运算指令及功能如表4-2所示。
 
-***TODO_TABLE_4_2***
+```{image} ../../img/t2p_4_2_1.png
+:alt: LoongArch支持的浮点运算指令及功能
+:class: bg-primary
+:scale: 80 %
+:align: center
+```
+```{image} ../../img/t2p_4_2_2.png
+:alt: LoongArch支持的浮点运算指令及功能
+:class: bg-primary
+:scale: 80 %
+:align: center
+```
 
 在LoongArch中，浮点数指令的指令名都以“f”开头。每一条指令都有单精度版和双精度版，在指令名后缀中用“.s”和“.d”区分。.s指令表示参与运算的操作数是低32位，.d指令表示参与运算的操作数是64位。
 

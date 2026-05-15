@@ -16,7 +16,12 @@
 
 浮点控制状态寄存器(FCSR)共有4个，记为fcsr0~fcsr3。FCSR的位宽为32位，其中fcsr0~fcsr3是fcsr0中部分域的别名。fcsr0的各个域的定义如表4-1所示。
 
-***TODO_TABLE_4_1***
+```{image} ../../img/t2p_4_1.png
+:alt: fcsr各个域含义
+:class: bg-primary
+:scale: 80 %
+:align: center
+```
 
 表4-1中浮点例外是指当浮点运算单元不能以常规的方式处理操作数或者浮点计算结果时产生的例外，LoongArch基础浮点数指令支持5个IEEE 754-2008所定义的浮点例外。
 

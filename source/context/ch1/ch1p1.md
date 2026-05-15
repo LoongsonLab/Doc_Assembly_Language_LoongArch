@@ -34,7 +34,7 @@ long c = a + 2;
 ```{image} ../../img/pic_1_2.png
 :alt: 龙芯指令集中加法运算指令的语法规范
 :class: bg-primary
-:scale: 50 %
+:scale: 100 %
 :align: center
 ```
 
