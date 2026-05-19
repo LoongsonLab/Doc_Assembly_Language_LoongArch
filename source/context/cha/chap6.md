@@ -110,13 +110,23 @@ perf top [ -e <event> | --event=EVENT] [ -p <pid> ]
 $perf top -p 17223
 ```
 
-***TODO_PIC_10_2***
+```{image} ../../img/cha/pic_a_2.png
+:alt: perf top的实时数据
+:class: bg-primary
+:scale: 80 %
+:align: center
+```
 
 从图10-2可以看出，perf top以函数为单位，按其性能占比情况从高到低排列，占比较高（超过5.00%）的函数会被标记为红色。函数名称和函数所在库分别在第三列和第二列展示。随着程序的持续运行，perf top也会实时更新热点函数和其占比。
 
 如果想继续查看这个热点函数内的热点汇编指令分布情况，可以使用鼠标继续单击此函数所在行进入annotate模式（同perf子命令perf annotatemethod_name），图10-3显示了最热函数thread_f被进一步展开后的信息。
 
-***TODO_PIC_10_3***
+```{image} ../../img/cha/pic_a_3.png
+:alt: perf annotate后的结果数据
+:class: bg-primary
+:scale: 80 %
+:align: center
+```
 
 ##	perf record/report的使用
 
