@@ -2,7 +2,7 @@
 
 浮点搬运指令可实现浮点寄存器和浮点寄存器、浮点寄存器和通用整型寄存器之间的无条件或有条件的赋值功能。LoongArch支持的浮点搬运指令如表4-9所示。
 
-```{image} ../../img/t2p_4_9.png
+```{image} ../../img/ch4/t2p_4_9.png
 :alt: LoongArch支持的浮点搬运指令
 :class: bg-primary
 :scale: 80 %

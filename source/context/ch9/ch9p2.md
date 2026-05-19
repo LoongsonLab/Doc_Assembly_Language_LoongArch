@@ -63,4 +63,9 @@ util命令可以在程序执行至循环体尾部时，使GDB快速执行完成�
 
 关于GDB的更多说明和使用方法，例如如何对一个已运行的程序进行调试、如何跟踪多线程程序的调试、调试过程如何屏蔽某个中断信号、如何设置和使用gdbinit配置文件等，可以在基于Linux的操作系统下使用命令 man gdb或者gdb --help来查看。表9-3中列举了一些GDB中常用但是本章前面没有提到过的命令。
 
-***TODO_TABLE_9_3***
+```{image} ../../img/ch9/t2p_9_3.png
+:alt: 基于Linux的操作系统下的GDB常用命令
+:class: bg-primary
+:scale: 80 %
+:align: center
+```

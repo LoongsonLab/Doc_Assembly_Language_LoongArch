@@ -2,7 +2,7 @@
 
 浮点比较指令用于对两个浮点数进行比较运算，将结果存入指定的条件标志寄存器中。当条件满足时，条件标志寄存器置1；条件不满足时，条件标志寄存器置0。比较的条件有小于、相等、不等、有序等。LoongArch支持的浮点比较指令如表4-5所示。
 
-```{image} ../../img/t2p_4_5.png
+```{image} ../../img/ch4/t2p_4_5.png
 :alt: LoongArch支持的浮点比较指令
 :class: bg-primary
 :scale: 80 %
@@ -11,7 +11,7 @@
 
 这里目的寄存器cc可以是条件标志寄存器fcc0~fcc7 中的任意一个。cond代表条件，常见的有SEQ（相等）、SLT（小于）、SLE（小于或等于）、SNE（不等）等。具体浮点比较条件有22种，如表4-6所示。
 
-```{image} ../../img/t2p_4_6.png
+```{image} ../../img/ch4/t2p_4_6.png
 :alt: 浮点比较条件
 :class: bg-primary
 :scale: 80 %

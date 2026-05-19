@@ -10,11 +10,21 @@ ELF文件是用在Linux系统下的一种目标文件存储格式。典型的目
 
 ELF文件中存放的是可以在处理器上执行的二进制指令和数据。不同的系统架构，ELF里面的格式和数据处理方式会略有不同，但基本格式如图6-1所示。
 
-***TODO_PIC_6_1***
+```{image} ../../img/ch6/pic_6_1.png
+:alt: ELF文件基本格式
+:class: bg-primary
+:scale: 80 %
+:align: center
+```
 
 从图6-1可以看出，不同目标文件类型，格式基本类似，内容略有不同。在图6-1(a)中，可重定向文件的格式由ELF文件头(ELF Header)、节(Section)和段头表(Section Header Table)3部分组成。在图6-1(b)中，可执行文件的格式由ELF文件头、段(Segment)和程序头表(Program Header Table)3部分组成。可重定向文件中的节和可执行文件中的段都存储了程序的代码部分、数据部分等，区别是可执行文件中的某个段就是结合了多个可重定向文件中的相关节，且代码部分是经过重定向的最终机器指令，如图6-2所示。
 
-***TODO_PIC_6_2***
+```{image} ../../img/ch6/pic_6_2.png
+:alt: 多个可重定向文件的相同节映射到一个可执行文件的段域
+:class: bg-primary
+:scale: 80 %
+:align: center
+```
 
 平时在工作中，很多程序开发人员并不会过多区分Section和Segment，基本都将之称作段，甚至很多教材中也不会过多区分。所以，本章介绍中统一描述为“段”，在需区分处补充了英文以示不同。
 
@@ -22,27 +32,27 @@ ELF文件中存放的是可以在处理器上执行的二进制指令和数据�
 
 ELF文件头描述了一个目标文件的组织，是对目标文件基本信息的描述，包括字的大小和字节序列（尾端）、ELF文件头的大小、目标文件类型、机器类型、节头表/段头表的大小和数量、程序入口点等。ELF文件头信息必须位于目标文件的最开始部分。我们可以使用工具readelf来查看一个可重定向文件hello.o的ELF头信息。
 ``` shell
-$readelf -h hello.o
-ELF Header:
-  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 
-  Class:                             ELF64
-  Data:                              2's complement, little endian
-  Version:                           1 (current)
-  OS/ABI:                            UNIX - System V
-  ABI Version:                       0
-  Type:                              REL (Relocatable file)
-  Machine:                           LoongArch
-  Version:                           0x1
-  Entry point address:               0x0
-  Start of program headers:          0 (bytes into file)
-  Start of section headers:          1000 (bytes into file)
-  Flags:                             0x43, LP64, DOUBLE-FLOAT
-  Size of this header:               64 (bytes)
-  Size of program headers:           0 (bytes)
-  Number of program headers:         0
-  Size of section headers:           64 (bytes)
-  Number of section headers:         14
-  Section header string table index: 13
+$ readelf -h hello.o
+ELF 头：
+Magic：  7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
+Class:                           ELF64
+Data:                            2补码，小端序(little endian)
+Version:                         1(current)
+OS/ABI:                          UNIX - System V
+ABI Version:                     0
+Type:                            REL（可重定向文件）
+Machine:                         LoongArch
+Version:                         0x1
+入口点地址：                       0x0
+程序头起点：                       0(bytes into file)
+Start of section headers:        856 (bytes into file)
+标志：                            0x3, LP64
+本头的大小：       64（字节）
+程序头大小：       0（字节）
+Number of program headers:         0
+节头大小：         64（字节）
+节头数量：         13
+字符串表索引节头： 10
 ```
 这里readelf的参数-h代表header，表示查看目标文件的头信息。头信息中的部分域结果说明如下。
 
@@ -60,45 +70,26 @@ ELF Header:
 
 一个可重定向文件中的段头表描述了ELF的各个段(Section)的信息，比如每个段的名称、长度、在文件中的偏移、读写权限、地址等。我们可以使用工具readelf 带参数“-S”来查看可重定向文件hello.o中段头表的详细信息。
 ``` shell
-$readelf -S hello.o
-There are 14 section headers, starting at offset 0x3e8:
-
-Section Headers:
-  [Nr] Name              Type             Address           Offset
-       Size              EntSize          Flags  Link  Info  Align
-  [ 0]                   NULL             0000000000000000  00000000
-       0000000000000000  0000000000000000           0     0     0
-  [ 1] .text             PROGBITS         0000000000000000  00000040
-       0000000000000000  0000000000000000  AX       0     0     1
-  [ 2] .data             PROGBITS         0000000000000000  00000040
-       0000000000000004  0000000000000000  WA       0     0     4
-  [ 3] .bss              NOBITS           0000000000000000  00000044
-       0000000000000000  0000000000000000  WA       0     0     1
-  [ 4] .rodata.str1.8    PROGBITS         0000000000000000  00000048
-       0000000000000004  0000000000000001 AMS       0     0     8
-  [ 5] .text.startup     PROGBITS         0000000000000000  0000004c
-       0000000000000030  0000000000000000  AX       0     0     4
-  [ 6] .rela.text.s[...] RELA             0000000000000000  00000280
-       0000000000000078  0000000000000018   I      11     5     8
-  [ 7] .comment          PROGBITS         0000000000000000  0000007c
-       0000000000000013  0000000000000001  MS       0     0     1
-  [ 8] .note.GNU-stack   PROGBITS         0000000000000000  0000008f
-       0000000000000000  0000000000000000           0     0     1
-  [ 9] .eh_frame         PROGBITS         0000000000000000  00000090
-       0000000000000030  0000000000000000   A       0     0     8
-  [10] .rela.eh_frame    RELA             0000000000000000  000002f8
-       0000000000000078  0000000000000018   I      11     9     8
-  [11] .symtab           SYMTAB           0000000000000000  000000c0
-       0000000000000198  0000000000000018          12    14     8
-  [12] .strtab           STRTAB           0000000000000000  00000258
-       0000000000000028  0000000000000000           0     0     1
-  [13] .shstrtab         STRTAB           0000000000000000  00000370
-       0000000000000076  0000000000000000           0     0     1
+# readelf -S hello.o
+There are 11 section headers, starting at offset 0x358:
+节头：
+[号]名称           类型      地址             偏移量    大小  旗标 链接 信息 对齐
+[0]                NULL     0000000000000000 00000000 000000    0  0   0
+[1] .text          PROGBITS 0000000000000000 00000040 000034 AX 0  0   4
+[2] .rela.text     RELA     0000000000000000 000001b0 000150  I 8  1   8
+[3] .data          PROGBITS 0000000000000000 00000074 000000 WA 0  0   1
+[4] .bss           NOBITS   0000000000000000 00000074 000000 WA 0  0   1
+[5] .rodata       PROGBITS  0000000000000000 00000078 00000e  A 0  0   8
+[6] .note.GNU-stack PROGBITS 0000000000000000  00000086  000000    0  0   1
+[7] .comment       PROGBITS 0000000000000000 00000086 00028  MS 0  0  1
+[8] .symtab        SYMTAB   0000000000000000 000000b0 0000f0    9  8  8
+[9] .strtab        STRTAB   0000000000000000 000001a0 000010    0  0  1
+[10] .shstrtab     STRTAB   0000000000000000 00000300 000052    0  0  1
 Key to Flags:
-  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
-  L (link order), O (extra OS processing required), G (group), T (TLS),
-  C (compressed), x (unknown), o (OS specific), E (exclude),
-  D (mbind), p (processor specific)
+W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+L (link order), O (extra OS processing required), G (group), T (TLS),
+C (compressed), x (unknown), o (OS specific), E (exclude),
+p (processor specific)
 ```
 从段头表信息可以看出当前hello.o文件中共有14个段，段号从0至13。每个段的段信息包括名称、类型、地址、偏移量、大小、旗标、链接、信息、对齐。
 
@@ -106,11 +97,21 @@ Key to Flags:
 
 上面显示的第一列为段名，在上面信息中显示为名称。段名都以.开头，常见的段名有.text、.data、.bss等。从段名上可以直观了解此段的基本功能，例如.text段用于存放代码（即机器指令），也称为代码段；.data段用于存放数据，也称为数据段；.rodata段用于存放只读数据，也称只读数据段。常见的段名及其功能描述如表6-1所示。
 
-***TODO_TABLE_6_1***
+```{image} ../../img/ch6/t2p_6_1.png
+:alt: 常见的段名及其功能描述
+:class: bg-primary
+:scale: 80 %
+:align: center
+```
 
 一个简单的C语言程序被编译成目标文件后，在目标文件中存放的位置如图6-3所示。
 
-***TODO_PIC_6_3***
+```{image} ../../img/ch6/pic_6_3.png
+:alt: c语言程序在目标文件中存放的位置
+:class: bg-primary
+:scale: 80 %
+:align: center
+```
 
 一般来说，C语言程序编译成的机器指令都被存放在代码段(.text)，已经被初始化的全局变量和局部静态变量都保存在数据段(.data)，未被初始化的全局变量和局部静态变量都保存在.bss段。而一些字符串常量（使用宏定义#define声明）、不可改变的变量（使用const修饰）都存放在只读数据段(.rodata)。这样分段存储有很多好处。当程序运行时，不同段的内容被映射到内存中具有不同管理权限（例如只读、可写、可执行等）的区域，首先可以保证安全性（防止指令段数据被修改）；其次可以节省内存（当系统运行多个该程序时只需要各保存一份指令即可），同时也利于性能提升（提升缓存命中率）。
 
@@ -118,7 +119,12 @@ Key to Flags:
 
 对编译器来说，段名没有实际意义，决定段属性的是段类型（在上面段信息中显示为类型）和段标志（在上面段信息中显示为旗标）。段类型可分为程序段、重定位表段、符号表段等。常见的段类型及其含义如表6-2所示。
 
-***TODO_TABLE_6_2***
+```{image} ../../img/ch6/t2p_6_2.png
+:alt: 常见的段类型及其含义
+:class: bg-primary
+:scale: 80 %
+:align: center
+```
 
 程序中段类型以SHT_开头，如SHT_NULL、SHT_SYMTAB等，但是readelf显示时省略了SHT_。
 
@@ -131,8 +137,7 @@ Key to Flags:
 段地址（在上面段信息中显示为地址）记录了当前段被加载到内存后的虚拟起始地址值。因为当前hello.o文件是还未做重定向的目标文件，在进程中的位置还不确定，所以当前所有段的地址都显示为0000000000000000 。如果我们读取最终的可执行文件hello，那么段地址信息都将是类似如下显示的非零有效地址值。
 
 ``` shell
-  [ 1] .text             PROGBITS         0000000000000000  00000040
-       0000000000000000  0000000000000000  AX       0     0     1
+ [10] .text  PROGBITS  00000001200008f0  000008f0 000270   AX   0   0   16
 ```
 这里虚拟地址0x0000000040就是.text段最终被加载到内存后的虚拟地址。尽管理论上进程可以使用40位的全部虚拟地址空间，但是一般情况下进程并不能使用全部的虚拟地址空间，系统通常预留一部分虚拟地址空间用于自身配置。在龙芯平台下，一个进程大概可用的地址空间范围在0x00000000～0x80000000。
 
@@ -150,52 +155,37 @@ Key to Flags:
 
 我们可以使用readelf -S或readelf -l来查看一个可执行文件hello中的段信息和程序头表信息。
 ``` shell
-$readlef -l hello
-Elf file type is DYN (Position-Independent Executable file)
-Entry point 0x600
+# readelf -l hello
+Elf 文件类型为 EXEC（可执行文件）
+Entry point 0x120000580
 There are 9 program headers, starting at offset 64
-
-Program Headers:
-  Type           Offset             VirtAddr           PhysAddr
-                 FileSiz            MemSiz              Flags  Align
-  PHDR           0x0000000000000040 0x0000000000000040 0x0000000000000040
-                 0x00000000000001f8 0x00000000000001f8  R      0x8
-  INTERP         0x0000000000000238 0x0000000000000238 0x0000000000000238
-                 0x0000000000000025 0x0000000000000025  R      0x1
-      [Requesting program interpreter: /lib64/ld-linux-loongarch-lp64d.so.1]
-  LOAD           0x0000000000000000 0x0000000000000000 0x0000000000000000
-                 0x0000000000000828 0x0000000000000828  R E    0x4000
-  LOAD           0x0000000000003e20 0x0000000000007e20 0x0000000000007e20
-                 0x0000000000000240 0x0000000000000248  RW     0x4000
-  DYNAMIC        0x0000000000003e30 0x0000000000007e30 0x0000000000007e30
-                 0x00000000000001d0 0x00000000000001d0  RW     0x8
-  NOTE           0x0000000000000260 0x0000000000000260 0x0000000000000260
-                 0x0000000000000020 0x0000000000000020  R      0x4
-  GNU_EH_FRAME   0x00000000000007b8 0x00000000000007b8 0x00000000000007b8
-                 0x000000000000001c 0x000000000000001c  R      0x4
-  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000
-                 0x0000000000000000 0x0000000000000000  RW     0x10
-  GNU_RELRO      0x0000000000003e20 0x0000000000007e20 0x0000000000007e20
-                 0x00000000000001e0 0x00000000000001e0  R      0x1
-
- Section to Segment mapping:
-  Segment Sections...
-   00     
-   01     .interp 
-   02     .interp .note.ABI-tag .hash .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rela.dyn .rela.plt .plt .text .rodata .eh_frame_hdr .eh_frame 
-   03     .init_array .fini_array .dynamic .got.plt .got .sdata .bss 
-   04     .dynamic 
-   05     .note.ABI-tag 
-   06     .eh_frame_hdr 
-   07     
-   08     .init_array .fini_array .dynamic
+程序头：
+Type             Offset      VirtAddr    FileSiz     MemSiz   Flags Align
+PHDR          0x000000040  0x120000040  0x0001f8  0x0000001f8   R   0x8
+INTERP        0x000000238  0x120000238  0x00000f  0x00000000f   R   0x1
+LOAD          0x000000000  0x120000000  0x0007f8  0x0000007f8  RE  0x4000
+LOAD          0x000003e30  0x120007e30  0x000230  0x000000238  RW  0x4000
+DYNAMIC       0x000003e40  0x120007e40  0x0001c0  0x0000001c0  RW  0x8
+NOTE          0x000000248  0x120000248  0x000044  0x000000044   R  0x4
+GNU_EH_FRAME  0x0000007a8  0x1200007a8  0x000014  0x000000014   R  0x4
+GNU_STACK     0x000000000  0x000000000  0x000000  0x000000000  RW  0x10
+GNU_RELRO     0x000003e30  0x120007e30  0x0001d0  0x0000001d0   R  0x1
+Section to Segment mapping:
+段节...
+00
+01  .interp
+02  .interp .note.ABI-uag .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rela.dyn .rela.plt .plt .text .rodata .eh_frame_hdr .eh_frame
+03  .init_array .fini_array .dynamic .got.plt .got .sdata .bss
+04  .dynamic
+05  .note.ABI-tag .note.gnu.build-id
+06  .eh_frame_hdr
+07
+08  .init_array .fini_array .dynamic 
 ```
 这里程序头信息中显示当前文件中共有9个段(Segment)，编号从00至08。从输出信息来看，Segment中已经不再需要段名信息，但是对Section和Segment的对应关系做了保留，即后面的“Section to Segment mapping:”部分信息。所有具有相同访问属性的Section被归类到一个Segment中，例如都具有可读可执行权限的.test、.rodata段都被统一安排到编号为02的Segment中，02对应程序头信息的第3行。
 ``` shell
-  Type           Offset             VirtAddr           PhysAddr
-                 FileSiz            MemSiz              Flags  Align
-  LOAD           0x0000000000000000 0x0000000000000000 0x0000000000000000
-                 0x0000000000000828 0x0000000000000828  R E    0x4000
+Type        Offset      VirtAddr    FileSiz       MemSiz     Flags  Align
+LOAD     0x000000000  0x120000000   0x0007f8    0x0000007f8    RE   0x4000
 ```
 其中，类型LOAD是指当程序运行时，本段是需要被加载到内存的。虚拟地址(VirtAddr)0x000000000是指当该段被进程加载到内存时存放的起始地址；FileSiz表示此段在ELF文件中所占空间的长度；MemSiz表示此Segment在进程内存中所占的长度，对于代码段，此值和FileSiz相等，但是对于数据段，此值可能大于FileSiz；权限属性(Flags)包括可读(R)、可写(W)和可执行(E)，当前02段为代码段(.text)所在段，故权限为RE，没有可写权限；对齐属性Align表示此Segment在内存加载时的对齐方式，其值为2的Align次方，比如上面的Align值为4，那么对齐要求就是16。
 
@@ -238,76 +228,22 @@ int main(){
 ```
 其编译后生成的可重定向文件hello.o中符号表信息如下：
 ``` shell
-$readelf -s hello.o
-Symbol table '.symtab' contains 67 entries:
-   Num:    Value          Size Type    Bind   Vis      Ndx Name
-     0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT  UND 
-     1: 0000000000000238     0 SECTION LOCAL  DEFAULT    1 .interp
-     2: 0000000000000260     0 SECTION LOCAL  DEFAULT    2 .note.ABI-tag
-     3: 0000000000000280     0 SECTION LOCAL  DEFAULT    3 .hash
-     4: 00000000000002c8     0 SECTION LOCAL  DEFAULT    4 .gnu.hash
-     5: 00000000000002e8     0 SECTION LOCAL  DEFAULT    5 .dynsym
-     6: 0000000000000420     0 SECTION LOCAL  DEFAULT    6 .dynstr
-     7: 000000000000049a     0 SECTION LOCAL  DEFAULT    7 .gnu.version
-     8: 00000000000004b8     0 SECTION LOCAL  DEFAULT    8 .gnu.version_r
-     9: 00000000000004d8     0 SECTION LOCAL  DEFAULT    9 .rela.dyn
-    10: 00000000000005c8     0 SECTION LOCAL  DEFAULT   10 .rela.plt
-    11: 0000000000000600     0 SECTION LOCAL  DEFAULT   11 .plt
-    12: 0000000000000640     0 SECTION LOCAL  DEFAULT   12 .text
-    13: 0000000000000818     0 SECTION LOCAL  DEFAULT   13 .rodata
-    14: 0000000000000830     0 SECTION LOCAL  DEFAULT   14 .eh_frame_hdr
-    15: 0000000000000850     0 SECTION LOCAL  DEFAULT   15 .eh_frame
-    16: 0000000000007e20     0 SECTION LOCAL  DEFAULT   16 .init_array
-    17: 0000000000007e28     0 SECTION LOCAL  DEFAULT   17 .fini_array
-    18: 0000000000007e30     0 SECTION LOCAL  DEFAULT   18 .dynamic
-    19: 0000000000008000     0 SECTION LOCAL  DEFAULT   19 .data
-    20: 0000000000008008     0 SECTION LOCAL  DEFAULT   20 .got.plt
-    21: 0000000000008028     0 SECTION LOCAL  DEFAULT   21 .got
-    22: 0000000000008060     0 SECTION LOCAL  DEFAULT   22 .sdata
-    23: 0000000000008068     0 SECTION LOCAL  DEFAULT   23 .bss
-    24: 0000000000000000     0 SECTION LOCAL  DEFAULT   24 .comment
-    25: 0000000000000000     0 SECTION LOCAL  DEFAULT   25 .debug_aranges
-    26: 0000000000000000     0 SECTION LOCAL  DEFAULT   26 .debug_info
-    27: 0000000000000000     0 SECTION LOCAL  DEFAULT   27 .debug_abbrev
-    28: 0000000000000000     0 SECTION LOCAL  DEFAULT   28 .debug_line
-    29: 0000000000000000     0 SECTION LOCAL  DEFAULT   29 .debug_str
-    30: 0000000000000000     0 SECTION LOCAL  DEFAULT   30 .debug_line_str
-    31: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS abi-note.c
-    32: 0000000000000260    32 OBJECT  LOCAL  DEFAULT    2 __abi_tag
-    33: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS init.c
-    34: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS crtstuff.c
-    35: 00000000000006a0     0 FUNC    LOCAL  DEFAULT   12 deregister_tm_clones
-    36: 00000000000006e4     0 FUNC    LOCAL  DEFAULT   12 register_tm_clones
-    37: 000000000000073c     0 FUNC    LOCAL  DEFAULT   12 __do_global_dtors_aux
-    38: 0000000000008068     1 OBJECT  LOCAL  DEFAULT   23 completed.0
-    39: 0000000000007e28     0 OBJECT  LOCAL  DEFAULT   17 __do_global_dtor[...]
-    40: 0000000000000794     0 FUNC    LOCAL  DEFAULT   12 frame_dummy
-    41: 0000000000007e20     0 OBJECT  LOCAL  DEFAULT   16 __frame_dummy_in[...]
-    42: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS main.c
-    43: 0000000000008070     4 OBJECT  LOCAL  DEFAULT   23 static_a.0
-    44: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS crtstuff.c
-    45: 00000000000008a0     0 OBJECT  LOCAL  DEFAULT   15 __FRAME_END__
-    46: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS 
-    47: 0000000000000600     0 OBJECT  LOCAL  DEFAULT  ABS _PROCEDURE_LINKA[...]
-    48: 0000000000008060     0 OBJECT  LOCAL  DEFAULT   22 __dso_handle
-    49: 0000000000007e30     0 OBJECT  LOCAL  DEFAULT  ABS _DYNAMIC
-    50: 0000000000000830     0 NOTYPE  LOCAL  DEFAULT   14 __GNU_EH_FRAME_HDR
-    51: 0000000000008028     0 OBJECT  LOCAL  DEFAULT   21 __TMC_END__
-    52: 0000000000008028     0 OBJECT  LOCAL  DEFAULT  ABS _GLOBAL_OFFSET_TABLE_
-    53: 0000000000000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_deregisterT[...]
-    54: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND __libc_start_mai[...]
-    55: 0000000000008068     0 NOTYPE  GLOBAL DEFAULT   22 _edata
-    56: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND abort@GLIBC_2.36
-    57: 000000000000806c     4 OBJECT  GLOBAL DEFAULT   23 global_var
-    58: 0000000000000818     4 OBJECT  GLOBAL DEFAULT   13 _IO_stdin_used
-    59: 0000000000008078     0 NOTYPE  GLOBAL DEFAULT   23 _end
-    60: 0000000000000640    96 FUNC    GLOBAL DEFAULT   12 _start
-    61: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND printf@GLIBC_2.36
-    62: 0000000000008000     8 OBJECT  GLOBAL DEFAULT   19 str
-    63: 0000000000008068     0 NOTYPE  GLOBAL DEFAULT   23 __bss_start
-    64: 00000000000007ac   108 FUNC    GLOBAL DEFAULT   12 main
-    65: 0000000000000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_registerTMC[...]
-    66: 0000000000000000     0 FUNC    WEAK   DEFAULT  UND __cxa_finalize@G[...]
+$ readelf -s hello.o
+Symbol table '.symtab' contains 13 entries:
+Num:   Value          Size  Type    Bind     Vis    Ndx    Name
+0: 0000000000000000    0   NOTYPE   LOCAL  DEFAULT  UND
+1: 0000000000000000    0   SECTION  LOCAL  DEFAULT     1
+2: 0000000000000000    0   SECTION  LOCAL  DEFAULT     3
+3: 0000000000000000    0   SECTION  LOCAL  DEFAULT     5
+4: 0000000000000000    0   SECTION  LOCAL  DEFAULT     6
+5: 0000000000000000    4   OBJECT    LOCAL  DEFAULT     5    static_a
+6: 0000000000000000    0   SECTION  LOCAL  DEFAULT     7
+7: 0000000000000000    0   NOTYPE   LOCAL  DEFAULT     6    .LC0
+8: 0000000000000000    0   SECTION  LOCAL  DEFAULT     8
+9: 0000000000000000    8   OBJECT    GLOBAL DEFAULT    3     str
+10: 0000000000000000    4   OBJECT    GLOBAL DEFAULT    COM    global_var
+11: 0000000000000000   60  FUNC      GLOBAL DEFAULT     1     main
+12: 0000000000000000    0   NOTYPE   GLOBAL DEFAULT    UND    puts
 ```
 
 从上面的信息可以看出，hello.o文件中共有67个符号，编号(Num)从0到66。每个符号都有如下属性。
@@ -409,9 +345,11 @@ Disassembly of section .text:
 
 这里使用命令“objdump -r ”查看a.o中的重定向信息：
 ``` shell
-$objdump -r a.o
-a.o 	:
-***TODO***
+$ objdump -r a.o
+a.o：   文件格式 elf64-loongarch
+RELOCATION RECORDS FOR [.text]:
+OFFSET    TYPE      VALUE
+0000000000000010 R_LARCH_SOP_PUSH_PLT_PCREL  temp
 ```
 这说明在a.o中的代码段中有需要地址修正的指令，其所在当前目标文件中的偏移地址为0x10，即上面a.o中的指令：
 ``` shell
@@ -421,6 +359,11 @@ a.o 	:
 
 LoongArch ABI支持的重定位类型多达60种，全面的重定位类型可参看龙芯架构参考手册的ABI部分，表6-3列举了部分LoongArch支持的重定位类型。
 
-***TODO_TABLE_6_3***
+```{image} ../../img/ch6/t2p_6_3.png
+:alt: 部分LoongArch支持的重定位类型
+:class: bg-primary
+:scale: 80 %
+:align: center
+```
 
 表6-3中列举了4种重定位类型。对于和一个重定位相关联的符号，计算方式中RtAddr代表这个符号的运行时地址，A代表一个额外的加数，B代表是该重定位的段所在模块被加载进内存的装载地址。

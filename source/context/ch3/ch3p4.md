@@ -3,7 +3,7 @@
 除了本章列举的运算指令、访存指令、转移指令之外，LoongArch中还有几条实现特殊功能且使用频率很高的指令。LoongArch支持的其他杂项指令如表3-10所示。
 
 
-```{image} ../../img/t2p_3_10.png
+```{image} ../../img/ch3/t2p_3_10.png
 :alt: LoongArch支持的其他杂项指令
 :class: bg-primary
 :scale: 80 %
@@ -53,7 +53,7 @@ rdtime.d 	$r7, $r8
 
 软件在执行过程中所运行的处理器中实现了龙芯架构中的哪些特性，可通过指令cpucfg动态识别。这些特性记录在一系列配置信息字中。cpucfg指令一次可以根据配置字号读取一组配置信息。龙芯架构支持的cpucfg部分配置字号和对应的配置信息如表3-11所示。
 
-```{image} ../../img/t2p_3_11.png
+```{image} ../../img/ch3/t2p_3_11.png
 :alt: 龙架构支持的CPUCFG部分配置字号和对应的配置信息
 :class: bg-primary
 :scale: 80 %

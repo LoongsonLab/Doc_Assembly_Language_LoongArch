@@ -2,15 +2,30 @@
 
 系统启动一个进程时，首先要做的就是加载可执行文件中的数据到内存，然后才能运行。但并不是所有的数据都会被加载，一个典型的可执行文件中，只有程序头中记录的类型为LOAD的段才需要被加载到内存，其他段不需要加载到内存（仅用于辅助判断如何加载）。一个典型的可执行文件数据被加载到虚拟内存的情况如图6-5所示。
 
-***TODO_PIC_6_5***
+```{image} ../../img/ch6/pic_6_5.png
+:alt: 可执行文件与进程虚拟内存的映射关系
+:class: bg-primary
+:scale: 80 %
+:align: center
+```
 
 图6-5中，仅段1和段2需要被加载到内存，分别被放在VMA2和VMA1。VMA的全称为VirtualMemorry Address，即虚拟地址空间。一个VMA可以占用一个页或者多个页，是页的整数倍。一般不同的VMA具有不同的权限，例如VMA1存放的是代码，权限为只读且可执行；而VMA2存放的是数据，权限为可读写且可执行。从图6-5可以看出，可执行文件在加载（映射）到内存时，ELF文件头和调试信息（.debug_info、.debug_str段等）是不需要的，而只需要加载部分段（如.text、.bss、.data段等）到内存，具体就是加载段类型为LOAD的段。
 
 实际开发中，我们还可以通过“/proc/pid/maps”节点来查看一个进程的虚拟地址空间布局，其中pid为待查看的进程号。例如要查看系统进程号为30828的虚拟地址空间布局，可以使用命令“cat/proc/30828/maps”查看，显示出来的信息如下：
-```
-$cat /proc/xxxx/maps
-
-***TODO***
+``` shell
+$ cat /proc/30828/maps
+120000000-120004000 r-xp 00000000 08:00 100794371    /home/v/c-test/a.out
+120004000-12000c000 rwxp 00004000 08:00 100794371    /home/v/c-test/a.out
+fff718c000-fff72dc000 r-xp 00000000 08:11 3539724    /usr/lib/loongarch64-linux-gnu/libc-2.28.so
+fff72dc000-fff72f0000 r-xp 0014c000 08:11 3539724    /usr/lib/loongarch64-linux-gnu/libc-2.28.so
+fff72f0000-fff72f4000 rwxp 00160000 08:11 3539724    /usr/lib/loongarch64-linux-gnu/libc-2.28.so
+fff72f4000-fff72f8000 rwxp 00000000 00:00 0
+fff7318000-fff7338000 r-xp 00000000 08:11 3539080    /usr/lib/loongarch64-linux-gnu/ld-2.28.so
+fff7338000-fff733c000 r-xp 0001c000 08:11 3539080    /usr/lib/loongarch64-linux-gnu/ld-2.28.so
+fff733c000-fff7340000 rwxp 00020000 08:11 3539080    /usr/lib/loongarch64-linux-gnu/ld-2.28.so
+fffb8ac000-fffb8d0000 rw-p 00000000 00:00 0                     [stack]
+ffff07c000-ffff080000 r--p 00000000 00:00 0                     [vvar]
+ffff080000-ffff084000 r-xp 00000000 00:00 0                     [vdso]
 ```
 第一列为VMA地址范围；第二列为VMA的权限，可以是可读(r)、可写(w)、可执行(x)、私有(p)、可共享(s)，例如r-xp表示此段虚拟地址空间数据可读、可执行并且是私有的（不能被其他进程访问），但是不可写；第三列为VMA对应的Segment在映射文件中的偏移；第四列表示映像文件所在设备的主设备号和次设备号；第五列表示映像文件的节点号；最后一列是映像文件的路径。
 

@@ -38,7 +38,7 @@
 
 2021年，龙芯中科基于20年的CPU研制和生态建设积累，正式对外发布了龙芯自主指令系统(LoongArch)。指令系统由龙芯基础指令系统(Loongson Base)、二进制翻译扩展(LoongsonBinary Translation, LBT)、虚拟化扩展(LoongsonVirtualization, LVZ)、向量扩展和高级向量扩展共5部分组成，近2000条指令，它们之间的关系如图1-3所示。
 
-```{image} ../../img/pic_1_3.png
+```{image} ../../img/ch1/pic_1_3.png
 :alt: 龙芯自主指令系统
 :class: bg-primary
 :scale: 50 %

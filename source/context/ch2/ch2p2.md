@@ -39,7 +39,7 @@ gcc [options] file...
 
 从上面的输出信息可以清晰地看出，GCC编译过程中涉及3个工具：cc1、as和collect2。cc1是第01章提到的编译器，负责对高级语言源文件（hello.c等）进行预处理，产生第一个中间文件(hello.i)；然后cc1再对预处理文件进行翻译，生成汇编源文件(hello.s)。as是汇编器，负责对汇编源文件进行翻译处理，生成包含机器指令的目标文件(hello.o)。collect2是链接器，负责将多个目标文件(\*.o)组合生成最终可在特定指令架构计算机上运行的目标文件(hello)。图2-5直观描述了这一过程。
 
-```{image} ../../img/pic_2_5.png
+```{image} ../../img/ch2/pic_2_5.png
 :alt: GCC编译过程
 :class: bg-primary
 :scale: 80 %

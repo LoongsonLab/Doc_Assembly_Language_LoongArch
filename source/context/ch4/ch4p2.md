@@ -16,7 +16,7 @@
 
 浮点控制状态寄存器(FCSR)共有4个，记为fcsr0~fcsr3。FCSR的位宽为32位，其中fcsr0~fcsr3是fcsr0中部分域的别名。fcsr0的各个域的定义如表4-1所示。
 
-```{image} ../../img/t2p_4_1.png
+```{image} ../../img/ch4/t2p_4_1.png
 :alt: fcsr各个域含义
 :class: bg-primary
 :scale: 80 %

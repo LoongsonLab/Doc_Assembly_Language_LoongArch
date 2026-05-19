@@ -2,7 +2,7 @@
 
 计算机中的数据均是按二进制的方式存储的，但是由于浮点数的特殊性，无法采用整数的补码存储方式，故IEEE规定了两种基本的浮点数格式：单精度和双精度。单精度浮点数（对应C语言数据类型float）的宽度为32位，双精度浮点数（对应C语言数据类型double）的宽度为64位。它们的组织格式如图4-1所示。
 
-```{image} ../../img/pic_4_1.png
+```{image} ../../img/ch4/pic_4_1.png
 :alt: 单精度和双精度的组织格式
 :class: bg-primary
 :scale: 80 %
@@ -19,7 +19,7 @@
 
 单精度浮点数：(-1)<sup>s</sup>x2<sup>e-1023</sup>x1.f
 
-```{image} ../../img/pic_4_2.png
+```{image} ../../img/ch4/pic_4_2.png
 :alt: e区域既不为0也不为1
 :class: bg-primary
 :scale: 80 %
@@ -42,7 +42,7 @@ s 	e(8位)                    f(23位)
 
 此时无论f区域存放的是什么，得到的都是一个非常接近0的数值。
 
-```{image} ../../img/pic_4_3.png
+```{image} ../../img/ch4/pic_4_3.png
 :alt: e区域为0
 :class: bg-primary
 :scale: 80 %
@@ -53,7 +53,7 @@ s 	e(8位)                    f(23位)
 
 当偏量指数e区域全为1时，可以表示的浮点数是无穷大或者非数字(Not a Number，NaN)，如图4-4所示。具体来说，当f全为0时，如果s位为1则表示正无穷大+INF，否则表示负无穷大-INF；当f不全为0时，结果值被称为NaN。当一些运算的结果不能是实数或无穷大时，则会返回这样的NaN值。
 
-```{image} ../../img/pic_4_4.png
+```{image} ../../img/ch4/pic_4_4.png
 :alt: e区域既为1
 :class: bg-primary
 :scale: 80 %

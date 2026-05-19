@@ -6,7 +6,7 @@
 
 浮点普通访存指令实现从指定内存地址读取（访问）一个单精度浮点数或双精度浮点数到寄存器，以及写（存储）一个单精度浮点数或双精度浮点数到指定的内存地址。LoongArch支持的浮点普通访存指令如表4-3所示。
 
-```{image} ../../img/t2p_4_3.png
+```{image} ../../img/ch4/t2p_4_3.png
 :alt: LoongArch支持的浮点普通访存指令
 :class: bg-primary
 :scale: 80 %
@@ -38,7 +38,7 @@ fst.s 	$f2, $r12, 8 	#	将结果写回内存
 浮点边界检查访存指令仅在LA64架构下被支持。
 :::
 
-```{image} ../../img/t2p_4_4.png
+```{image} ../../img/ch4/t2p_4_4.png
 :alt: LoongArch支持的浮点边界检查访存指令
 :class: bg-primary
 :scale: 80 %

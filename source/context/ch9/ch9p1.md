@@ -39,7 +39,12 @@ Hello World !
 
 GDB中break断点设置的相关命令如表9-1所示。
 
-***TODO_TABLE_9_1***
+```{image} ../../img/ch9/t2p_9_1.png
+:alt: break断点设置的相关命令
+:class: bg-primary
+:scale: 80 %
+:align: center
+```
 
 在表9-1中，break断点设置的相关命令有5个，其中命令break、tbreak和rbreak被称为软件断点，用于一般程序的断点设置。hbreak和thbreak被称为硬件中断，主要是针对位于EPROM/ROM上的代码调试。设置命令break的缩写命令为“b”。其中，参数LOCATION可以为行号、函数名或者一个具体的内存地址。如果没有指定LOCATION，默认为当前栈帧的PC值。使用选项thread THREADNUM可以设置断点到某一个线程，其中线程号THREADNUM可以通过命令“info threads”查看并获得。选项if CONDITION用于带条件的断点设置，即当条件表达式CONDITION的值为真时，断点才会起效。这对调试某个变量为特定值或者调试循环到指定次数的情况很有用。下面列举几种常用的break设置命令：
 ``` shell
@@ -191,7 +196,12 @@ tcache event
 ```
 参数event表示要监控的具体事件。catch常用的event 事件类型如表9-2所示。
 
-***TODO_TABLE_9_2***
+```{image} ../../img/ch9/t2p_9_2.png
+:alt: Catch常用的event事件类型
+:class: bg-primary
+:scale: 80 %
+:align: center
+```
 
 下面列举一个catch断点的设置方式：
 ``` shell

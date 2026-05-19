@@ -2,13 +2,13 @@
 
 浮点转换指令用于实现单精度浮点数和双精度浮点数、浮点数和定点数之间的转换，LoongArch支持的浮点转换指令如表4-8所示。
 
-```{image} ../../img/t2p_4_8_1.png
+```{image} ../../img/ch4/t2p_4_8_1.png
 :alt: LoongArch支持的浮点转换指令
 :class: bg-primary
 :scale: 80 %
 :align: center
 ```
-```{image} ../../img/t2p_4_8_2.png
+```{image} ../../img/ch4/t2p_4_8_2.png
 :alt: LoongArch支持的浮点转换指令
 :class: bg-primary
 :scale: 80 %

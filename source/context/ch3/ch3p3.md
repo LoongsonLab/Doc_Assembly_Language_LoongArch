@@ -2,7 +2,7 @@
 
 转移指令用于执行有条件或无条件的分支跳转、函数调用、函数返回和循环等。LoongArch支持的转移指令如表3-9所示。
 
-```{image} ../../img/t2p_3_9.png
+```{image} ../../img/ch3/t2p_3_9.png
 :alt: LoongArch支持的转移指令
 :class: bg-primary
 :scale: 80 %
