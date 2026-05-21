@@ -16,7 +16,6 @@
    context/ch7/index.rst
    context/ch8/index.rst
    context/chb/index.rst
-   context/chc/index.rst
    context/ch9/index.rst
    context/cha/index.rst
    context/chd/index.rst

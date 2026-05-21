@@ -8,6 +8,7 @@ LoongArch目标文件和进程虚拟空间
 	:maxdepth:	2
 
 	ch6p1.md
+	ch6p6.md
 	ch6p2.md
 	ch6p3.md
 	ch6p4.md
