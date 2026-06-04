@@ -1,10 +1,10 @@
 #	GDB 调试器的常用命令
 
-GDB 调试器（GNU Debugger）是 Linux 平台下最常用的程序调试器之一，目前可以为 C、C++、Go、Objective-C 等多种程序设计语言提供调试支持。Linux 平台下许多带有调试功能的 C、C++ 集成开发环境（IDE），其调试核心都源自 GDB。GDB 通常以 gdb 命令的形式在终端（Shell）中使用。gdb 命令本身提供了许多选项（参数），可以帮助用户快速定位程序异常点，或监控程序执行的细节，例如异常点或断点处的寄存器值、函数调用栈信息、线程调度情况等。
+GDB（GNU Debugger）是Linux平台最常用的程序调试器之一，支持C、C++、Go、Objective-C等多种语言。Linux上许多带调试功能的C/C++集成开发环境，其底层调试能力也来自GDB。GDB通常通过终端中的`gdb`命令使用。`gdb`命令提供了大量选项，可帮助用户定位程序异常点，观察断点处的寄存器值、函数调用栈、线程调度等运行细节。
 
 ##	GDB 的启动和退出
 
-GDB 既可以以程序二进制文件名作为参数随程序一同启动，也可以以进程号为参数动态附加到正在运行的程序。启动时可以指定程序运行参数、配置文件，也可以附带 core 文件。下面列举几种 GDB 常用的启动方式。
+GDB既可以随程序二进制文件一起启动，也可以通过进程号附加到正在运行的程序。启动时还可以指定程序参数、配置文件或core文件。下面列出几种常见启动方式。
 ``` shell
 gdb program              //启动gdb并执行程序program
 gdb program core         //启动gdb并停止到core文件中的异常位置
@@ -13,11 +13,11 @@ gdb attach -p 1234       //同gdb -p 1234
 gdb --args program       //同gdb program，program后面可以带命令行参数
 gdb -x gdbinit program   //同gdb program，同时指定gdb配置文件
 ```
-除上面列举的常用启动参数外，还可以使用 `gdb -h` 或 `gdb --help` 查看更详细的 GDB 参数说明。
+除上述常用启动参数外，还可以使用`gdb -h`或`gdb --help`查看更完整的参数说明。
 
-为了更好地使用 GDB 调试程序，通常希望被调试程序的二进制文件及其依赖的动态库文件中包含符号表信息。通常情况下，为了尽量减小程序占用空间，已经发布的产品级二进制程序文件会经过瘦身处理，即剥离文件中的符号信息和调试信息（使用 Linux 命令 `file 文件名` 查看时会显示 `stripped`）。在这种情况下，GDB 调试过程中将无法看到函数名、变量名和行号等直观信息。使用 gcc/g++ 编译源码时，添加 `-g` 选项可以生成带有符号信息和调试信息的二进制文件。
+为了更有效地使用GDB调试程序，通常希望被调试程序及其依赖动态库中保留符号表和调试信息。发布版二进制程序为了减小体积，往往会剥离符号和调试信息；使用Linux命令`file 文件名`查看时，通常会显示`stripped`。在这种情况下，GDB调试时无法显示函数名、变量名和源代码行号等直观信息。使用`gcc`或`g++`编译源码时，可以添加`-g`选项生成带符号和调试信息的二进制文件。
 
-一个简单的带调试信息的程序编译和 GDB 运行示例如下：
+下面是一个带调试信息程序的编译和GDB运行示例：
 ``` shell
 $ gcc -g gdbtest.c -o gdbtest
 $ gdb -q gdbtest
@@ -29,15 +29,15 @@ Hello World !
 (gdb) q
 ```
 
-这里在编译 gdbtest.c 文件时，使用 `-g` 参数通知编译器保留调试信息。GDB 启动时默认会输出版本信息、版权说明、帮助提示等内容，这里通过添加参数 `-q` 屏蔽这部分信息。GDB 启动后，可以在 `(gdb)` 后键入任何 GDB 支持的命令来控制程序执行。例如，这里键入的两个命令 `r` 和 `q` 分别表示运行程序（run 命令的缩写形式）和退出 GDB（quit 命令的缩写形式）。更多 GDB 命令可以通过在 `(gdb)` 后键入 `help` 或 `help all` 查看。GDB 支持的命令很多，本章仅围绕工作中常用的 gdb 调试功能展开，例如程序断点设置、单步调试、查看堆栈信息、查看寄存器信息等。
+这里编译`gdbtest.c`时使用`-g`，表示保留调试信息。GDB启动时默认会输出版本、版权和提示信息，示例中使用`-q`屏蔽这些内容。进入GDB后，可以在`(gdb)`提示符后输入命令控制程序执行。示例中的`r`和`q`分别是`run`和`quit`的缩写，表示运行程序和退出GDB。更多命令可通过`help`或`help all`查看。本章只介绍工作中常用的GDB调试功能，例如断点设置、单步调试、查看堆栈和寄存器等。
 
 ##	断点设置
 
-通常在 GDB 启动后进行断点设置。程序断点可以让 GDB 在程序执行到指定位置（如某行、某个函数、某个地址）时暂停程序，等待用户进一步处理。GDB 支持在程序中设置3种类型的断点：break 断点（又称程序断点）、watch 断点（又称数据断点）和 catch 断点（又称事件断点）。break 断点可以让程序执行到指定行或指定函数位置时暂停，是最常用的断点类型。watch 断点用于监视某个数据变量的变化，当指定数据变量或内存地址单元被修改时，程序暂停。catch 断点用于捕获程序执行期间产生的指定事件，例如 assert、exception、syscall、signal、fork 等。下面分别介绍这3种断点的使用方法。
+断点通常在GDB启动后设置。断点可以让程序执行到指定位置时暂停，例如某一行、某个函数或某个地址，之后由用户继续检查和控制程序。GDB支持3类常用断点：break断点（程序断点）、watch断点（数据断点）和catch断点（事件断点）。break断点用于让程序在指定行或函数处暂停，是最常用的断点类型；watch断点用于监视变量或内存地址，当其值发生变化时暂停程序；catch断点用于捕获运行期间的特定事件，例如assert、exception、syscall、signal、fork等。
 
 1.	break 断点设置
 
-GDB 中 break 断点设置的相关命令如表9-1所示。
+GDB中break断点相关命令如表9-1所示。
 
 ```{image} ../../img/ch9/t2p_9_1.png
 :alt: break 断点设置的相关命令
@@ -46,7 +46,7 @@ GDB 中 break 断点设置的相关命令如表9-1所示。
 :align: center
 ```
 
-表9-1中列出了5个 break 断点设置相关命令。其中，break、tbreak 和 rbreak 属于软件断点，用于一般程序的断点设置；hbreak 和 thbreak 属于硬件断点，主要用于调试位于 EPROM/ROM 上的代码。break 命令的缩写为 `b`。参数 LOCATION 可以是行号、函数名或具体内存地址。如果没有指定 LOCATION，则默认为当前栈帧的 PC 值。使用选项 `thread THREADNUM` 可以将断点设置到某一个线程，其中线程号 THREADNUM 可以通过命令 `info threads` 查看并获得。选项 `if CONDITION` 用于设置条件断点，即当条件表达式 CONDITION 的值为真时，断点才会生效。这对调试某个变量为特定值，或调试循环到指定次数的情况很有用。下面列举几种常用的 break 设置命令：
+表9-1列出5个break断点相关命令。其中，`break`、`tbreak`和`rbreak`属于软件断点，常用于普通程序调试；`hbreak`和`thbreak`属于硬件断点，主要用于调试EPROM/ROM上的代码。`break`可缩写为`b`。参数LOCATION可以是行号、函数名或具体内存地址；如果不指定LOCATION，默认使用当前栈帧的PC值。选项`thread THREADNUM`可把断点限定到某个线程，线程号THREADNUM可通过`info threads`查看。选项`if CONDITION`用于设置条件断点，只有条件表达式CONDITION为真时断点才生效，适合调试变量达到特定值或循环执行到特定次数的场景。常用break命令如下：
 ``` shell
 b a.c:4                //在源C语言文件a.c的第4行设置断点
 b main                 //在函数main入口处设置断点
@@ -55,7 +55,7 @@ b *0x120000774         //在地址0x120000774处设置断点
 b a.c:21 if out == 20  //条件断点，即当变量等于20时，程序在a.c中的21行处暂停
 b a.c:21 thread 1      //在文件a.c的21行设置断点，仅对Num为1的线程起效
 ```
-命令 tbreak（缩写为 tb）和 rbreak（缩写为 rb）的用法与 break 类似。区别在于，tbreak 表示临时断点，即该断点只生效一次；rbreak 用于对满足匹配规则的所有函数设置断点。使用示例如下：
+`tbreak`（缩写为`tb`）和`rbreak`（缩写为`rb`）用法与`break`类似。区别是：`tbreak`表示临时断点，只生效一次；`rbreak`用于对匹配规则命中的所有函数设置断点。示例如下：
 ``` shell
 tbreak a.c:21     //在a.c中的21行设置断点，此断点只生效一次
 ignore 1 10       //跳过（忽略）1号断点的前10次执行。1为断点号
@@ -63,9 +63,9 @@ rbreak .          //对程序中所有函数设置断点
 rbreak a.c::.     //仅对a.c文件中的所有函数设置断点
 rbreak add*       //对程序中所有以add为前缀的函数设置断点
 ```
-硬件断点 hbreak（缩写为 hb）和 thbreak（缩写为 thb）的用法也与 break 类似，这里不再举例。thbreak 也称硬件临时断点，即只生效一次。
+硬件断点`hbreak`（缩写为`hb`）和`thbreak`（缩写为`thb`）的用法也与`break`类似，这里不再举例。`thbreak`表示硬件临时断点，也只生效一次。
 
-断点设置后，可以使用命令 `info break` 或 `info b` 查看当前程序已经设置的所有断点信息。下面通过一个具体示例演示 break 的使用。具体的C语言程序如下：
+断点设置完成后，可以使用`info break`或`info b`查看当前程序已经设置的断点。下面通过一个示例演示break的使用。C语言程序如下：
 ``` text
 /* gdbtest.c
 *  gcc -g gdbtest.c -o gdbtest
@@ -80,7 +80,7 @@ rbreak add*       //对程序中所有以add为前缀的函数设置断点
 8     return 0;
 9 }
 ```
-对这个程序使用 break 调试的信息如下：
+使用break调试该程序的信息如下：
 ``` shell
 $ gdb gdbtest -q
 Reading symbols from gdbtest...done.
@@ -101,11 +101,11 @@ Hello World ! argc=1
 (gdb) q       -->退出gdb
 ```
 
-clear 命令可以删除指定位置的所有断点，参数 location 通常为某一行代码的行号或某个具体函数名。当参数 location 为某个函数名时，表示删除位于该函数入口处的所有断点。
+`clear`命令可删除指定位置的所有断点，参数location通常是某一行代码或某个函数名。当location是函数名时，表示删除该函数入口处的全部断点。
 
-delete 命令（缩写形式为 d）可以删除指定编号的断点或全部断点，其参数 num 为指定断点的编号。当未指定 num 时，delete 命令会删除当前程序中存在的所有断点。
+`delete`命令（缩写为`d`）可删除指定编号断点或全部断点，参数num表示断点编号。不指定num时，`delete`会删除当前程序中的所有断点。
 
-禁用断点可以使用 disable 命令，其参数 `num1 num2 ...` 表示一次可以禁用多个断点。例如，`disable 1` 表示禁用编号为1的断点，`disable 1 2 3` 表示禁用编号分别为1、2和3的断点；当没有指定编号值时，disable 表示禁用当前程序的所有断点。对于被禁用的断点，可以使用 enable 命令重新启用，其使用方式与 disable 相同。删除和禁用断点的示例如下：
+禁用断点可使用`disable`命令，其参数`num1 num2 ...`表示一次禁用多个断点。例如，`disable 1`表示禁用1号断点，`disable 1 2 3`表示同时禁用1、2、3号断点；不指定编号时，`disable`表示禁用当前程序所有断点。被禁用的断点可用`enable`重新启用，用法与`disable`相同。示例如下：
 ``` shell
 (gdb) info b           -->显示当前共有3个断点
 Num     Type           Disp Enb           What
@@ -131,7 +131,7 @@ Num     Type           Disp Enb Address            What
 (gdb) 
 ```
 
-在使用 GDB 调试程序的过程中，可以借助 watch 断点监控程序中某个变量或表达式的值。只要该值发生改变，程序就会停止执行。这对于定位某个变量或内存单元遭到非法篡改的问题很有帮助。与 watch 断点设置相关的命令如下：
+使用GDB调试程序时，可以借助watch断点监控某个变量或表达式的值。只要该值发生改变，程序就会暂停执行。这对定位变量或内存单元被非法修改的问题很有帮助。watch断点相关命令如下：
 ``` shell
 watch a                  //对变量a设置断点。仅当a发生写变化（被修改）时，程序暂停
 watch *(int*)0x120008064 //对地址0x120008064设置断点，当此地址内的4字节发生写变化时，程序暂停
@@ -142,7 +142,7 @@ info watch               //查看当前程序设置的所有watch断点
 info b                   //查看当前程序设置的所有break断点和watch断点
 info thread              //查看当前程序的所有线程信息
 ```
-watch 断点和 break 断点使用相同的删除命令 clear 或 delete。下面通过一个C语言示例演示 watch 断点的使用。
+watch断点和break断点使用相同的删除命令`clear`或`delete`。下面通过C程序演示watch断点的使用。
 ``` c
 /* gdbtest.c
 *  gcc -g gdbtest.c -o gdbtest
@@ -157,7 +157,7 @@ int main (int argc, char *argv[])
 	return 0;
 }
 ```
-使用 watch 断点观测变量 tt 值变化的方式如下：
+使用watch断点观察变量tt变化的方式如下：
 ``` shell
 $ gdb gdbtest -q
 Reading symbols from gdbtest...done.
@@ -184,17 +184,17 @@ main (argc=1, argv=0xffffff3428) at gdbtest.c:9
 9     for(int i=0; i<3; i++){
 (gdb)
 ```
-在程序运行之前或运行过程中，都可以设置 watch 断点。这里是在程序运行之前对变量 tt 设置 watch 断点。通过 `info watch` 可以查看当前程序已经设置的 watch 断点信息。watch 的实现一般需要处理器硬件支持。从上面的信息可以看出，龙芯处理器硬件支持 watch 断点。
+watch断点可以在程序运行前设置，也可以在运行过程中设置。这里是在运行前对变量tt设置watch断点。`info watch`可查看当前程序已设置的watch断点。watch通常需要处理器硬件支持；从示例输出看，龙芯处理器支持硬件watch断点。
 
-与 watch 相似的另外两个观察断点命令为 rwatch 和 awatch。区别在于，watch 用于观察某个变量或内存值的写变化（即其值被修改），rwatch 用于观察某个变量或内存值的读变化（即其值被使用但未被修改），而 awatch 用于观察某个变量或内存值的读/写变化（即其值被使用或被修改都会被捕获）。
+与watch相似的观察断点还有`rwatch`和`awatch`。区别是：`watch`观察变量或内存值的写变化，`rwatch`观察读变化，`awatch`观察读或写变化。
 
 3.	catch 断点设置
 
-catch 断点的作用是监控程序中某一事件的发生，例如程序发生某种异常、某一动态库被加载等。一旦目标事件发生，程序就会暂停执行。catch 断点的设置方式如下：
+catch断点用于监控程序中的特定事件，例如发生某种异常或加载某个动态库。一旦目标事件发生，程序就会暂停执行。catch断点设置格式如下：
 ``` shell
 tcatch event
 ```
-参数 event 表示要监控的具体事件。catch 常用的 event 事件类型如表9-2所示。
+参数event表示要监控的具体事件。catch常用event类型如表9-2所示。
 
 ```{image} ../../img/ch9/t2p_9_2.png
 :alt: Catch常用的event事件类型
@@ -203,7 +203,7 @@ tcatch event
 :align: center
 ```
 
-下面列举几种 catch 断点的设置方式：
+常见catch断点设置示例如下：
 ``` shell
 catch signal SIGBUS   //捕获SIGBUS事件，当此事件发生时程序暂停
 tcatch signal SIGBUS  //仅捕获SIGBUS事件一次
@@ -213,7 +213,7 @@ catch syscall         //捕获所有系统调用
 info break            //查看所有break、watch和catch断点信息
 delete 1              //删除Num为1的断点。此断点可以是break、watch或catch断点
 ```
-例如，要捕获程序运行时动态库加载的事件，具体示例如下：
+例如，捕获程序运行时动态库加载事件，可使用如下命令：
 ``` shell
 (gdb) catch load      -->捕获动态库加载事件的断点设置
 Catchpoint 4 (load)
@@ -229,7 +229,7 @@ Inferior loaded /lib/loongarch64-linux-gnu/libc.so.6
 
 1.	print/display命令
 
-当程序执行被 GDB 暂停到某个断点处时，可以通过 print 命令或 display 命令查看某个变量或表达式的值。其中，print 命令可以缩写为 `p`。print 和 display 命令的常用格式如下：
+当程序在断点处暂停时，可以使用`print`或`display`查看变量或表达式的值。`print`可缩写为`p`。二者常用格式如下：
 ``` shell
 p variable
 p file::variable
@@ -238,13 +238,13 @@ display variable
 display file::variable
 display function::variable
 ```
-参数 variable 用于指示要查看或修改的目标变量。当程序中包含多个作用域不同但名称相同的变量或表达式时，可以在变量前面添加文件名（file::variable）或函数名（function::variable）。
+参数variable表示要查看或修改的变量。当程序中存在多个作用域不同但名称相同的变量或表达式时，可以在变量前加文件名（`file::variable`）或函数名（`function::variable`）限定作用域。
 
-display 命令也用于在调试阶段查看某个变量或表达式的值。它与 print 命令的区别在于，使用 display 命令查看变量或表达式的值后，每当程序暂停执行（例如单步执行）时，GDB 都会自动输出该值。
+`display`也用于查看变量或表达式的值。它与`print`的区别是：使用`display`设置后，每当程序暂停（例如单步执行后），GDB都会自动输出该值。
 
 2.	info register命令
 
-此命令可以在程序暂停在某个断点时，查看一个、多个或所有寄存器的信息。下面列出的命令都是查看寄存器信息的有效方式。
+程序停在断点处时，可以使用该命令查看一个、多个或全部寄存器。下面命令都是查看寄存器信息的有效方式。
 ``` shell
 info register r4            //查看寄存器r4的值
 info register r4  r5        //查看寄存器r4和r5的值
@@ -257,7 +257,7 @@ i r                         //查看所有通用寄存器、pc、badvaddr的值
 i all-r                     //查看所有通用寄存器、浮点寄存器、向量寄存器的值
 ```
 
-下面以一个具体示例来介绍查看寄存器信息的方法。使用的C语言程序如下：
+下面用一个具体示例说明如何查看寄存器。C语言程序如下：
 ``` text
 1  /* gdbtest.c */
 2   #include <stdio.h>
@@ -305,22 +305,20 @@ pc             0x120000674         0x120000674 <add+36>
 badvaddr       0xfff64c4008        0xfff64c4008
 (gdb) 
 ```
-这里使用命令 `b add` 将断点设置在 add 函数的起始位置，然后使用命令 `r` 运行程序并停止在函数 add 入口处。从源程序可以看出，函数 add 有两个参数，分别为 int a 和 int b。根据 LoongArch ABI 的函数调用传参规则，调用函数 add 时的参数值1和2分别使用寄存器 a0、a1 传递，因此这里使用命令 `i r a0` 和 `i r a1` 查看寄存器 a0 和 a1 的值，结果分别为1和2。
+这里用`b add`把断点设置在add函数入口，然后用`r`运行程序并停在add函数处。从源程序可知，add有两个参数`int a`和`int b`。根据LoongArch ABI函数调用传参规则，调用add时，参数1和2分别通过寄存器a0、a1传递。因此，使用`i r a0`和`i r a1`查看寄存器值，结果分别为1和2。
 
-当然，也可以使用 `i r` 查看 LoongArch 架构中32个通用寄存器的值，以及当前程序寄存器 pc 和 badvaddr 的值。
-
-如果还要查看浮点寄存器或向量寄存器的值，可以使用 `i all-r` 命令。该命令显示的信息较多，这里不做展示。
+也可以使用`i r`查看LoongArch的32个通用寄存器，以及当前程序的pc和badvaddr。如果还要查看浮点寄存器或向量寄存器，可使用`i all-r`。该命令输出较多，这里不展示。
 
 3.	disassemble命令
 
-使用 disassemble 命令可以查看（也称为反汇编）指定函数或指定地址范围内的汇编指令。其缩写命令为 disass。具体使用方式有如下几种：
+`disassemble`命令用于查看（反汇编）指定函数或指定地址范围内的汇编指令，缩写为`disass`。常见用法如下：
 ``` shell
 disass                //查看当前断点所在函数对应的汇编指令
 disass func_name      //查看指定函数名为func_name的函数对应汇编指令
 disass addr           //查看指定地址addr所在函数对应汇编指令
 disass addr1,addr2    //查看指定地址addr1和addr2范围内的汇编指令
 ```
-下面仍以 gdbtest 程序为例演示 disassemble 命令的使用。
+下面仍以gdbtest为例演示`disassemble`命令。
 ``` shell
 $ gdb gdbtest -q
 Reading symbols from gdbtest...done.
@@ -351,9 +349,9 @@ Dump of assembler code for function add:
 End of assembler dump.
 (gdb) 
 ```
-因为程序运行之前使用命令 `b add` 将断点设置在函数 add 上，所以程序执行到函数 add 处停止。使用 `disass` 命令反汇编得到的是函数 add 对应的全部汇编指令信息。
+因为程序运行前用`b add`把断点设置在add函数，所以程序执行到add处暂停。此时执行`disass`，得到的是add函数对应的全部汇编指令。
 
-同时，通过当前程序 pc 所在位置 `=> 0x0000000120000674 <+36>` 可以看出，break 命令设置函数断点时，断点位置在程序栈构建之后，而不是函数入口的第一条指令。
+从当前pc所在位置`=> 0x0000000120000674 <+36>`还可以看出，使用`break`设置函数断点时，断点位置位于函数栈构建之后，而不是函数入口第一条指令。
 ``` shell
 (gdb) disass main
 Dump of assembler code for function main:
@@ -377,7 +375,7 @@ Dump of assembler code for function main:
 End of assembler dump.
 (gdb) 
 ```
-若要仅显示当前 $pc 附近的前4条和后4条汇编指令，可以使用如下命令：
+如果只想显示当前`$pc`附近前4条和后4条汇编指令，可以使用如下命令：
 ``` shell
 (gdb) disass $pc-16, $pc+16
 Dump of assembler code from 0x120000664 to 0x120000684:
@@ -395,11 +393,11 @@ End of assembler dump.
 
 4.	x 命令
 
-前面介绍的 display 命令可以查看程序中某个变量或表达式的值，但不能查看指定内存地址中的数据值。GDB 提供了查看内存的命令 x，可用于查看指定内存地址上的数据，并可指定数据格式。x 命令的格式如下：
+前面介绍的`display`可查看程序中的变量或表达式，但不能直接查看指定内存地址中的数据。GDB提供`x`命令查看指定内存地址上的数据，并可指定显示格式。命令格式如下：
 ``` shell
 x/FMT 	ADDRESS
 ```
-参数 FMT 由内存单元数量、显示格式和内存单元长度组成。内存单元数量为整数，不指定时默认值为1；显示格式有多种，具体如下所示。
+参数FMT由内存单元数量、显示格式和内存单元长度组成。内存单元数量为整数，不指定时默认为1；显示格式包括如下类型。
 
 -	x(hex)：按十六进制格式显示变量。
 
@@ -421,11 +419,11 @@ x/FMT 	ADDRESS
 
 -	s(string)：按字符串格式显示。
 
-内存单元长度可由4个字母指定：b 表示单字节，h 表示双字节，w 表示4字节，g 表示8字节；不指定时默认值为 w。
+内存单元长度可由4个字母指定：b表示单字节，h表示双字节，w表示4字节，g表示8字节；不指定时默认为w。
 
-参数 ADDRESS 为一个内存地址，可以是绝对地址（如 0x12000006c），也可以是基于当前 pc 的相对地址（如 $pc-4，表示当前程序暂停位置之前4字节的内存地址）。
+ADDRESS表示内存地址，可以是绝对地址（如0x12000006c），也可以是基于当前pc的相对地址（如`$pc-4`，表示当前暂停位置之前4字节的内存地址）。
 
-以下面的C语言程序为例演示 x 命令的使用。
+下面用C程序演示`x`命令。
 
 ``` text
 /* gdbtest.c */
@@ -474,14 +472,14 @@ r13            0x3                 3
 
 1.	backtrace命令
 
-backtrace 命令用于查看当前被调试程序的函数栈信息，以直观显示函数间的调用关系，其缩写命令为 `bt`。具体语法格式如下。
+`backtrace`命令用于查看当前被调试程序的函数栈信息，直观显示函数调用关系，缩写为`bt`。语法如下：
 ``` shell
 backtrace [QUALIFIERS] [COUNT]
 ```
 
-其中，参数 QUALIFIERS 为可选项，其值可以为 `full` 或 `no-filters`，分别表示输出局部变量的值和禁止执行帧筛选器。参数 COUNT 也为可选项，其值为整数。当值为正整数 n 时，表示输出最里层的 n 个栈帧信息；当值为负整数时，表示输出最外层 n 个栈帧信息；当没有 COUNT 参数时，backtrace 会显示完整的栈帧信息。
+QUALIFIERS为可选项，可取`full`或`no-filters`，分别表示输出局部变量值和禁止执行帧筛选器。COUNT也是可选项，取整数。若为正整数n，表示输出最内层n个栈帧；若为负整数，表示输出最外层n个栈帧；不指定COUNT时，显示完整栈帧信息。
 
-以下面C语言程序为例演示 bt 命令的使用。
+下面用C程序演示`bt`命令。
 
 ``` c
 /* gdbtest.c */
@@ -503,7 +501,7 @@ add(1, 2);
 return 0;
 }
 ```
-程序运行到函数 add3 时的堆栈信息如下：
+程序运行到add3函数时，堆栈信息如下：
 ``` shell
 $ gdb gdbtest -q
 Reading symbols from gdbtest...done.
@@ -531,11 +529,11 @@ Breakpoint 1, add3 (a=1, b=2) at gdbtest.c:5
 
 2.	frame命令
 
-如果要查看 backtrace 结果中某一层的栈帧信息，可以使用 frame 命令，其缩写为 `f`，完整命令形式如下：
+如果要查看`backtrace`结果中某一层栈帧信息，可以使用`frame`命令，缩写为`f`，完整形式如下：
 ``` shell
 frame [frame_num|frame_addr]
 ```
-参数可以是栈帧编号（frame_num）或栈帧地址（frame_addr）。当不指定任何参数时，frame 命令将显示 backtrace 结果中最顶层函数的栈帧。同样以 gdbtest 程序为例，其 frame 信息如下：
+参数可以是栈帧编号（frame_num）或栈帧地址（frame_addr）。不指定参数时，`frame`显示`backtrace`结果中最顶层函数的栈帧。同样以gdbtest程序为例，frame信息如下：
 ``` shell
 $ gdb gdbtest -q
 Reading symbols from gdbtest...done.
